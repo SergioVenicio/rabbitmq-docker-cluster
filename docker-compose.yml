@@ -1,0 +1,56 @@
+version: '3.9'
+
+services:
+  ha-proxy:
+    image: haproxy:2.7.8-alpine
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+
+  rabbitmq-1:
+    image: rabbitmq:3.11-management
+    container_name: rabbitmq-1
+    hostname: rabbitmq-1
+    environment:
+      - CLUSTERED=true
+      - RABBITMQ_DEFAULT_USER=rabbitmq
+      - RABBITMQ_DEFAULT_PASS=rabbitmq
+      - RABBITMQ_ERLANG_COOKIE=123456
+    volumes:
+      - rabbitmq-1-data:/var/lib/rabbitmq
+  rabbitmq-2:
+    image: rabbitmq:3.11-management
+    container_name: rabbitmq-2
+    hostname: rabbitmq-2
+    environment:
+      - CLUSTERED=true
+      - CLUSTER_WITH=rabbitmq-1
+      - RABBITMQ_DEFAULT_USER=rabbitmq
+      - RABBITMQ_DEFAULT_PASS=rabbitmq
+      - RABBITMQ_ERLANG_COOKIE=123456
+    volumes:
+      - rabbitmq-2-data:/var/lib/rabbitmq
+    links:
+      - rabbitmq-1
+  rabbitmq-3:
+    image: rabbitmq:3.11-management
+    container_name: rabbitmq-3
+    hostname: rabbitmq-3
+    environment:
+      - CLUSTERED=true
+      - CLUSTER_WITH=rabbitmq-1
+      - RABBITMQ_DEFAULT_USER=rabbitmq
+      - RABBITMQ_DEFAULT_PASS=rabbitmq
+      - RABBITMQ_ERLANG_COOKIE=123456
+    volumes:
+      - rabbitmq-3-data:/var/lib/rabbitmq
+    links:
+      - rabbitmq-1
+      - rabbitmq-2
+
+volumes:
+  rabbitmq-1-data:
+  rabbitmq-2-data:
+  rabbitmq-3-data:
