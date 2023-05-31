@@ -5,6 +5,7 @@ services:
     image: haproxy:2.7.8-alpine
     ports:
       - 5672:5672
+      - 8181:8181
       - 15672:15672
     volumes:
       - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
